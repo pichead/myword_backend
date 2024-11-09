@@ -1,0 +1,163 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  Free
+  Supporter
+  Superman
+}
+
+model admin {
+  id        Int      @id @default(autoincrement())
+  email     String   @db.VarChar(60)
+  password  String   @db.VarChar(255)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model category {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  meaning       String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  word_category word_category[]
+}
+
+model tag {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  meaning   String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  word_tag  word_tag[]
+}
+
+model word_tag {
+  id     Int  @id @default(autoincrement())
+  wordId Int
+  word   word @relation(fields: [wordId], references: [id])
+  tagId  Int
+  tag    tag  @relation(fields: [tagId], references: [id])
+}
+
+model word_category {
+  id         Int      @id @default(autoincrement())
+  wordId     Int
+  word       word     @relation(fields: [wordId], references: [id])
+  categoryId Int
+  category   category @relation(fields: [categoryId], references: [id])
+}
+
+model word {
+  id               Int             @id @default(autoincrement())
+  imageSrc         String?
+  word             String          @unique
+  difficulty       Int             @default(1)
+  part_of_speechId Int
+  part_of_speech   part_of_speech  @relation(fields: [part_of_speechId], references: [id])
+  meaning          String          @db.VarChar(255)
+  usageFrequency   Int             @default(0)
+  user_word        user_word[]
+  pronunciationEn  String
+  pronunciationTh  String
+  word_meaning     word_meaning[]
+  word_tag         word_tag[]
+  word_category    word_category[]
+
+  @@index([word])
+}
+
+model word_meaning {
+  id               Int             @id @default(autoincrement())
+  wordId           Int
+  word             word            @relation(fields: [wordId], references: [id])
+  pronunciationEn  String
+  pronunciationTh  String
+  part_of_speechId Int
+  part_of_speech   part_of_speech  @relation(fields: [part_of_speechId], references: [id])
+  meaning          String          @db.VarChar(255)
+  word_sentence    word_sentence[]
+}
+
+model word_sentence {
+  id             Int          @id @default(autoincrement())
+  word_meaningId Int
+  word_meaning   word_meaning @relation(fields: [word_meaningId], references: [id])
+  sentence       String       @db.Text
+  translation    String       @db.Text
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model users {
+  id              Int             @id @default(autoincrement())
+  fname           String?         @db.VarChar(255)
+  lname           String?         @db.VarChar(255)
+  userName        String?         @unique
+  email           String          @db.VarChar(60)
+  isVerifiedEmail DateTime?       @db.Timestamp(0)
+  password        String          @db.VarChar(255)
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  plan            Plan            @default(Free)
+  user_word       user_word[]
+  audit_log       audit_log[]
+  user_progress   user_progress[]
+}
+
+model user_word {
+  id             Int      @id @default(autoincrement())
+  usersId        Int
+  users          users    @relation(fields: [usersId], references: [id])
+  wordId         Int
+  word           word     @relation(fields: [wordId], references: [id])
+  point          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  correctCount   Int      @default(0)
+  inCorrectCount Int      @default(0)
+
+  @@index([usersId])
+  @@index([wordId])
+  @@index([point])
+}
+
+model user_progress {
+  id                Int       @id @default(autoincrement())
+  usersId           Int
+  users             users     @relation(fields: [usersId], references: [id])
+  totalWordsStudied Int       @default(0)
+  totalCorrect      Int       @default(0)
+  totalIncorrect    Int       @default(0)
+  totalPoints       Int       @default(0)
+  lastActivity      DateTime?
+
+  @@index([usersId])
+}
+
+model part_of_speech {
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
+  meaning      String         @db.VarChar(255)
+  word         word[]
+  word_meaning word_meaning[]
+}
+
+model audit_log {
+  id        Int      @id @default(autoincrement())
+  usersId   Int
+  users     users    @relation(fields: [usersId], references: [id])
+  action    String   @db.VarChar(255)
+  detail    String   @db.Text
+  createdAt DateTime @default(now())
+}
