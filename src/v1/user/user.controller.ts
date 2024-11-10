@@ -99,7 +99,7 @@ export class UserController {
 
     try {
 
-      const { name, email, password } = userRegisterDto
+      const { email, password } = userRegisterDto
 
       const findEmail = await this.userService.findUserByEmail(email)
 
@@ -113,7 +113,7 @@ export class UserController {
         return RES.error(400, "Error to create password", "สร้างรหัสผ่านไม่สำเร็จ")
       }
 
-      const createClient = await this.userService.createClient(name, email, hashPassword)
+      const createClient = await this.userService.createClient(email, hashPassword)
 
       if (createClient) {
         return RES.ok(200, "Success create new user", "สร้างผู้ใช้งานสำเร็จ", {})
@@ -129,6 +129,41 @@ export class UserController {
 
   }
 
+
+  @Post('admin/create')
+  async adminCreate(@Body() userRegisterDto: UserRegisterDto) {
+
+    try {
+
+      const { email, password } = userRegisterDto
+
+      const findEmail = await this.userService.findUserByEmail(email)
+
+      if (findEmail) {
+        return RES.error(400, "This email is current using", "email นี้ถูกใช้งานแล้ว")
+      }
+
+      const hashPassword = await PASSWORD.hash(password)
+
+      if (!hashPassword) {
+        return RES.error(400, "Error to create password", "สร้างรหัสผ่านไม่สำเร็จ")
+      }
+
+      const createClient = await this.userService.createAdmin(email, hashPassword)
+
+      if (createClient) {
+        return RES.ok(200, "Success create new user", "สร้างผู้ใช้งานสำเร็จ", { ...createClient, password: undefined })
+      }
+      else {
+        return RES.error(400, "Error to create new user", "สร้างผู้ใช้งานใหม่ไม่สำเร็จ")
+      }
+
+    } catch (error) {
+      console.log(error)
+      return RES.error(500, "System error", "เกิดข้อผิดพลาดจากระบบ")
+    }
+
+  }
 
   @Get('admin-findall')
   @UseGuards(AdminAuthGuard)
@@ -170,7 +205,7 @@ export class UserController {
   async adminUpdate(@Param('id') id: string, @Body() adminUpdateDto: UserUpdateDto) {
     try {
 
-      const { name, email, password } = adminUpdateDto
+      const { email, password } = adminUpdateDto
 
       const findAdmin = await this.userService.adminFindOne(+id)
       if (!findAdmin) {

@@ -37,9 +37,9 @@ export class AdminAuthGuard implements CanActivate {
         const exposeData = await JWT.access.expose(token);
 
         if (exposeData && exposeData.tokenType === 'access') {
-          const findUserByEmail = await this.userService.findUserByEmail(exposeData.email)
+          const findUserByEmail = await this.userService.findAdminByEmail(exposeData.email)
 
-          if (!findUserByEmail || findUserByEmail.role !== 0) {
+          if (!findUserByEmail) {
             return false
           }
           else {

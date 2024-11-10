@@ -13,7 +13,28 @@ export class UserService {
 
     try {
 
-      const findUser = await this.db.users.findUnique({
+      const findUser = await this.db.users.findFirst({
+        where: {
+          email,
+          isActive: true
+        }
+      })
+
+      return findUser
+
+    } catch (error) {
+      console.log("error at find user from database")
+      console.log(error)
+      return null
+    }
+
+  }
+
+  async findAdminByEmail(email: string) {
+
+    try {
+
+      const findUser = await this.db.admin.findFirst({
         where: {
           email,
           isActive: true
@@ -49,14 +70,13 @@ export class UserService {
     }
   }
 
-  async createClient(name: string, email: string, password: string) {
+  async createAdmin(email: string, password: string) {
 
     try {
 
-      const create = await this.db.users.create({
+      const create = await this.db.admin.create({
         data: {
           email: email,
-          name: name,
           password: password,
         }
       })
@@ -70,22 +90,26 @@ export class UserService {
 
   }
 
-  async updateCredit(id: number, credit: number, transaction: Prisma.TransactionClient | null | undefined) {
+  async createClient(email: string, password: string) {
 
-    const dbt = transaction ? transaction : this.db
+    try {
 
-    const update = await dbt.users.update({
-      where: {
-        id
-      },
-      data: {
-        credit
-      }
-    })
+      const create = await this.db.users.create({
+        data: {
+          email: email,
+          password: password,
+        }
+      })
 
-    return update
+      return create
+
+    } catch (error) {
+      console.log(error)
+      return null
+    }
 
   }
+
 
   async findOne(id: number) {
     try {
@@ -112,10 +136,7 @@ export class UserService {
   async adminFindAll() {
     try {
 
-      const findUser = await this.db.users.findMany({
-        where: {
-          role: 0,
-        },
+      const findUser = await this.db.admin.findMany({
         omit: {
           password: true
         }
@@ -134,9 +155,6 @@ export class UserService {
     try {
 
       const findUser = await this.db.users.findMany({
-        where: {
-          role: 1,
-        },
         omit: {
           password: true
         }
@@ -155,9 +173,7 @@ export class UserService {
     try {
 
       const findUser = await this.db.users.findMany({
-        select: {
-          name: true
-        }
+
       })
 
       return findUser
@@ -176,7 +192,6 @@ export class UserService {
       const findUser = await this.db.users.findFirst({
         where: {
           id,
-          role: 0,
         },
         omit: {
           password: true

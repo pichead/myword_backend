@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  rabbitmq:
+    image: rabbitmq:management-alpine
+    tty: true
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: 'bas290839'
+      RABBITMQ_DEFAULT_PASS: 'weare12we'
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+
+volumes:
+  rabbitmq_data:
+    driver: local

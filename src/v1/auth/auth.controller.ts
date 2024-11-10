@@ -25,7 +25,7 @@ export class AuthController {
 
       const findUser = await this.userService.findUserByEmail(email)
 
-      if (!findUser || findUser.role !== 1) {
+      if (!findUser) {
         return RES.error(403, "Wrong email or password", "emailหรือรหัสผ่านไม่ถูกต้อง")
       }
 
@@ -35,7 +35,7 @@ export class AuthController {
         return RES.error(403, "Wrong email or password", "emailหรือรหัสผ่านไม่ถูกต้อง")
       }
 
-      const getJwt = await JWT.access.create({ id: findUser.id, email: findUser.email, name: findUser.name })
+      const getJwt = await JWT.access.create({ id: findUser.id, email: findUser.email })
 
       if (!getJwt) {
         return RES.error(400, "Error to login", "เข้าสู่ระบบผิดพลาด")
@@ -59,9 +59,9 @@ export class AuthController {
 
       const { email, password } = loginDto
 
-      const findUser = await this.userService.findUserByEmail(email)
+      const findUser = await this.userService.findAdminByEmail(email)
 
-      if (!findUser || findUser.role !== 0) {
+      if (!findUser) {
         return RES.error(403, "Wrong email or password", "emailหรือรหัสผ่านไม่ถูกต้อง")
       }
 
@@ -71,7 +71,7 @@ export class AuthController {
         return RES.error(403, "Wrong email or password", "emailหรือรหัสผ่านไม่ถูกต้อง")
       }
 
-      const getJwt = await JWT.access.create({ id: findUser.id, email: findUser.email, name: findUser.name })
+      const getJwt = await JWT.access.create({ id: findUser.id, email: findUser.email })
 
       if (!getJwt) {
         return RES.error(400, "Error to login", "เข้าสู่ระบบผิดพลาด")

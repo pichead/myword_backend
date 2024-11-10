@@ -9,8 +9,6 @@ import { ConfigService } from '@nestjs/config';
 const exceptRes = new ExceptionResponse();
 
 async function bootstrap() {
-  console.log("process.env.NODE_ENV : ", process.env.NODE_ENV)
-  console.log("process.env.NODE_ENV2 : ", process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : `.env`)
 
   const app = await NestFactory.create(AppModule);
   const configService = app.get<ConfigService>(ConfigService);

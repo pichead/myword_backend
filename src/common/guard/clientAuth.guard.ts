@@ -38,7 +38,7 @@ export class ClientAuthGuard implements CanActivate {
         if (exposeData && exposeData.tokenType === 'access') {
           const findUserByEmail = await this.userService.findUserByEmail(exposeData.email)
 
-          if (!findUserByEmail || findUserByEmail.role !== 1) {
+          if (!findUserByEmail) {
             return false
           }
           else {

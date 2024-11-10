@@ -50,5 +50,7 @@ export const env = {
   s3BucketName: process.env.S3_BUCKET_NAME,
   s3BucketRegion: process.env.S3_BUCKET_REGION,
   s3AccessKey: process.env.S3_ACCESS_KEY_ID,
-  s3SecretKey: process.env.S3_SECRET_ACCESS_KEY
+  s3SecretKey: process.env.S3_SECRET_ACCESS_KEY,
+
+  rmqURL: process.env.RMQ_CONNECT_URL
 };
